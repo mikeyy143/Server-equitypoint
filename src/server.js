@@ -24,18 +24,32 @@ function getUserId(req) {
     .digest("hex");
 }
 
-app.get("/api/stats", async (req, res) => {
+function checkPassword(req, res) {
   const password = req.query.password;
-
   if (!password || password !== "Nikhil@6:30") {
-    return res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
+    return false;
   }
+  return true;
+}
+
+app.get("/api/stats", async (req, res) => {
+  if (!checkPassword(req, res)) return;
 
   const home = (await db.get("counts.home")) || 0;
   const pay = (await db.get("counts.pay")) || 0;
   const success = (await db.get("counts.success")) || 0;
 
   res.json({ home, pay, success });
+});
+
+app.post("/api/reset", async (req, res) => {
+  if (!checkPassword(req, res)) return;
+
+  await db.delete("counts");
+  await db.delete("visited");
+
+  res.json({ status: "reset done" });
 });
 
 function handleVisit(route) {
