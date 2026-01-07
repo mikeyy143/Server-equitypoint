@@ -43,7 +43,7 @@ app.get("/api/stats", async (req, res) => {
   res.json({ home, pay, success });
 });
 
-app.post("/api/reset", async (req, res) => {
+app.get("/api/reset", async (req, res) => {
   if (!checkPassword(req, res)) return;
 
   await db.delete("counts");
